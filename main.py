@@ -1,47 +1,38 @@
-import pandas as pd 
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Load data
+# Load the dataset
 data = pd.read_csv("C:\\Users\\Waithera\\Downloads\\File.csv")
 
-#Check the first few rows
-print(data.head())
-
-#Check column names
-print(data.columns)
-
-# Check for missing values
-print(data.isnull().sum())
-
-print(data.info())
-
-
-# Check the exact column names for any discrepancies
-print("Column names:", data.columns)
-
-# Strip spaces and handle potential special characters
+# Strip spaces from column names to avoid key errors
 data.columns = data.columns.str.strip()
 
-# If 'Date/Time' exists, rename it to 'Date'
+# Rename 'Date/Time' to 'Date' if present
 if 'Date/Time' in data.columns:
     data.rename(columns={'Date/Time': 'Date'}, inplace=True)
+    data['Date'] = pd.to_datetime(data['Date'])
 
-# Confirm column names after renaming
-print("After renaming:", data.columns)
+# Print first few rows to verify data
+print("First few rows of data:\n", data.head())
 
-# Convert the 'Date' column to datetime
-data['Date'] = pd.to_datetime(data['Date'])
+# Print column names
+print("Column names:\n", data.columns)
 
-# Plot the temperature trend
-plt.figure(figsize=(10, 5))
-plt.plot(data['Date'], data['Temp_C'], label="Temperature (°C)", color='blue')
-plt.xlabel("Date")
-plt.ylabel("Temperature (Celsius)")
-plt.title("Temperature Trend Over Time")
-plt.legend()
+# Check for missing values
+print("Missing values per column:\n", data.isnull().sum())
 
-# Rotate x-axis labels for better readability
-plt.xticks(rotation=45)
+# Select only numeric columns (ignore 'Weather' or other non-numeric columns)
+numeric_data = data.select_dtypes(include=['number'])
 
-# Show the plot
+# Compute correlation matrix
+corr_matrix = numeric_data.corr()
+
+# Print correlation matrix
+print("Correlation Matrix:\n", corr_matrix)
+
+# Plot the correlation heatmap
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=0.5)
+plt.title("Weather Data Correlation Heatmap")
 plt.show()
